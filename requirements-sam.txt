@@ -1,0 +1,3 @@
+# Opcional: seleção por clique (SAM) no modo Polígono
+torch>=2.1
+transformers>=4.40

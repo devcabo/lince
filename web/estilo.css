@@ -1,0 +1,72 @@
+/* Cores e medidas num lugar só. */
+:root{
+  --fundo:#fafafa; --superficie:#fff; --linha:#ececec; --texto:#18181b; --suave:#71717a;
+  --destaque:#2563eb; --destaque-forte:#1d4ed8; --feito:#16a34a;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;font:13px/1.45 "Segoe UI",system-ui,sans-serif;color:var(--texto);background:var(--fundo);height:100vh;display:flex;flex-direction:column}
+.esp{flex:1}
+main{flex:1;display:flex;min-height:0}
+
+/* Botões, seletor e teclas */
+button,select{font:inherit;color:var(--texto);background:var(--superficie);border:1px solid var(--linha);border-radius:8px;padding:5px 11px;cursor:pointer;transition:background .12s,border-color .12s}
+button:hover,select:hover{background:#f4f4f5;border-color:#dcdcde}
+button:focus-visible,select:focus-visible{outline:2px solid var(--destaque);outline-offset:1px}
+button:disabled{opacity:.35;cursor:default}
+button.principal{background:var(--destaque);border-color:var(--destaque);color:#fff;font-weight:600}
+button.principal:hover{background:var(--destaque-forte);border-color:var(--destaque-forte)}
+button.ligado{background:var(--texto);border-color:var(--texto);color:#fff}
+kbd{font:10px ui-monospace,Consolas,monospace;color:var(--suave);border:1px solid var(--linha);border-radius:4px;padding:0 4px;margin-left:6px}
+button.ligado kbd,button.principal kbd{color:#fff;border-color:rgba(255,255,255,.35)}
+
+/* Topo */
+header{display:flex;align-items:center;gap:10px;padding:0 16px;height:46px;background:var(--superficie);border-bottom:1px solid var(--linha)}
+header b{font-size:14px;font-weight:600}
+#onde,#sam{color:var(--suave)}
+header kbd{margin-left:0}
+#modos{display:inline-flex;gap:2px;padding:3px;background:#f1f1f3;border-radius:9px}
+#modos button{border:0;background:transparent;padding:3px 12px;border-radius:7px;color:var(--suave)}
+#modos button.ligado{background:var(--superficie);color:var(--texto);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.1)}
+
+/* Lotes (coluna da esquerda) */
+aside{width:210px;overflow:auto;background:var(--superficie);border-right:1px solid var(--linha);padding:8px}
+.lote{padding:7px 10px;border-radius:8px;cursor:pointer}
+.lote:hover{background:#f4f4f5}
+.lote.atual{background:#f1f1f3;font-weight:600}
+.lote small{color:var(--suave);float:right;font-weight:400}
+.prog{height:2px;background:var(--linha);border-radius:2px;margin-top:6px}
+.prog i{display:block;height:100%;background:var(--destaque);border-radius:2px}
+
+/* Grade de fotos do lote */
+section{flex:1;min-width:0;display:flex;flex-direction:column}
+#filtros{display:flex;align-items:center;gap:8px;padding:12px 16px;color:var(--suave)}
+#miniaturas{flex:1;overflow:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;padding:0 16px 16px;align-content:start}
+.mini{position:relative;height:150px;border-radius:10px;overflow:hidden;cursor:pointer;background:var(--linha)}
+.mini img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .15s}
+.mini:hover img{transform:scale(1.03)}
+/* Foto rotulada: bolinha verde no canto. */
+.mini.rotulada::after{content:"";position:absolute;top:8px;right:8px;width:10px;height:10px;border-radius:50%;border:2px solid #fff;background:var(--feito)}
+.mini span{position:absolute;left:6px;right:6px;bottom:6px;width:fit-content;max-width:calc(100% - 12px);background:rgba(24,24,27,.72);color:#fff;font-size:11px;padding:1px 7px;border-radius:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vazio{padding:48px;color:var(--suave);text-align:center;grid-column:1/-1}
+
+/* Foto aberta */
+.barra{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 12px;background:var(--superficie);border-bottom:1px solid var(--linha)}
+.barra > span:not(.sep):not(.esp){color:var(--suave);padding:0 4px;font-variant-numeric:tabular-nums}
+.barra .sep{width:1px;height:18px;background:var(--linha);margin:0 6px}
+#palco{flex:1;min-height:0;position:relative;background:#18181b}
+#tela{position:absolute;inset:0;width:100%;height:100%;cursor:crosshair}
+#aviso{position:absolute;left:50%;top:12px;transform:translateX(-50%);background:rgba(24,24,27,.9);color:#fff;padding:6px 14px;border-radius:8px;pointer-events:none}
+.dica{padding:6px 14px;background:var(--superficie);border-top:1px solid var(--linha);color:var(--suave);font-size:11.5px}
+
+/* Janela de escolha dos lotes da exportação */
+dialog{border:1px solid var(--linha);border-radius:12px;padding:20px;width:320px;color:var(--texto);box-shadow:0 12px 40px rgba(0,0,0,.18)}
+dialog::backdrop{background:rgba(24,24,27,.35)}
+dialog b{font-size:14px}
+dialog p{margin:6px 0 12px;color:var(--suave)}
+dialog label{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:6px;cursor:pointer}
+dialog label:hover{background:#f4f4f5}
+dialog label small{margin-left:auto;color:var(--suave)}
+dialog .todos{border-bottom:1px solid var(--linha);border-radius:0;margin-bottom:4px;padding-bottom:8px;font-weight:600}
+#escolha_lotes{max-height:260px;overflow:auto}
+dialog menu{display:flex;justify-content:flex-end;gap:8px;margin:16px 0 0;padding:0}

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lince</title>
+<link rel="stylesheet" href="/web/estilo.css">
+</head>
+<body>
+<header>
+  <b>Lince</b><span id="onde"></span><span class="esp"></span>
+  <span id="modos"><button id="m_poligono" onclick="trocarModo('poligono')">Polígono</button><button id="m_bounding_box" onclick="trocarModo('bounding_box')">Bounding box</button></span><kbd title="Tecla T troca o modo">T</kbd><span id="sam"></span>
+</header>
+<main>
+  <aside id="lotes"></aside>
+  <section id="grade"><div id="filtros"></div><div id="miniaturas"></div></section>
+  <section id="anotador" hidden>
+    <div class="barra" id="barra"></div>
+    <div id="palco"><canvas id="tela"></canvas><div id="aviso" hidden></div></div>
+    <div class="dica" id="dica"></div>
+  </section>
+</main>
+<dialog id="escolha">
+  <form method="dialog">
+    <b>Exportar para treino</b>
+    <p>Lotes a exportar (cada um vira uma pasta no formato YOLO):</p>
+    <label class="todos"><input type="checkbox" id="escolha_todos" checked> Todos</label>
+    <div id="escolha_lotes"></div>
+    <menu><button value="">Cancelar</button><button value="salvar" class="principal">Exportar</button></menu>
+  </form>
+</dialog>
+<script src="/web/js/estado.js"></script>
+<script src="/web/js/grade.js"></script>
+<script src="/web/js/anotador.js"></script>
+<script src="/web/js/entrada.js"></script>
+</body>
+</html>

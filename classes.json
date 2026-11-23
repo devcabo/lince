@@ -1,0 +1,12 @@
+{
+  "poligono": [
+    {"nome": "pessoa",  "rotulo": "Pessoa",  "cor": "#dc2626"},
+    {"nome": "veiculo", "rotulo": "Veículo", "cor": "#2563eb"},
+    {"nome": "arvore",  "rotulo": "Árvore",  "cor": "#16a34a"}
+  ],
+  "bounding_box": [
+    {"nome": "pessoa",  "rotulo": "Pessoa",  "cor": "#dc2626"},
+    {"nome": "veiculo", "rotulo": "Veículo", "cor": "#2563eb"},
+    {"nome": "placa",   "rotulo": "Placa",   "cor": "#f59e0b"}
+  ]
+}

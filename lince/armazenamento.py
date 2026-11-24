@@ -17,8 +17,10 @@ MARCAS = ("sem_objeto", "ilegivel")  # marcas da foto inteira
 EXTENSOES = {".jpg", ".jpeg", ".png"}
 
 
-def carregar_classes(arquivo: Path = RAIZ / "classes.json") -> dict:
-    """{modo: [{nome, rotulo, cor}]}. De 1 a 9 classes por modo: as teclas 1 a 9 seguem a ordem do arquivo."""
+def carregar_classes(arquivo: Path | None = None) -> dict:
+    """{modo: [{nome, rotulo, cor}]}. De 1 a 9 classes por modo: as teclas 1 a 9 seguem a ordem do arquivo.
+    dados/classes.json, se existir, vale no lugar do classes.json da raiz (classes próprias, fora do git)."""
+    arquivo = arquivo or next(p for p in (DADOS / "classes.json", RAIZ / "classes.json") if p.exists())
     classes = json.loads(Path(arquivo).read_text(encoding="utf-8"))
     for modo in MODOS:
         nomes = [c["nome"] for c in classes.get(modo) or []]

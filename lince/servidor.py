@@ -1,6 +1,7 @@
 """Site local do Lince: entrega a tela e as fotos e grava os rótulos. Só escuta em 127.0.0.1 (este computador).
 
 GET  /  /web/...  /foto/<lote>/<arquivo>  /api/config  /api/estado  /api/lotes?modo=  /api/lote?modo=&nome=
+     /api/planilha?modo=&lote=&classe=
 POST /api/rotulo  /api/preparar  /api/sam  /api/exportar
 """
 import json
@@ -69,6 +70,10 @@ class Atendimento(BaseHTTPRequestHandler):
                 modo, lote = modo_valido(pedido.get("modo")), pedido.get("nome", "")
                 do_lote = rotulos_do(modo, lote)
                 return self.responder([{"arquivo": f.name, "r": do_lote.get(f.name)} for f in fotos_do_lote(lote)])
+            if url.path == "/api/planilha":  # ?modo=&lote=...&classe=... (lote e classe se repetem)
+                listas = parse_qs(url.query)
+                texto = exportar.planilha(modo_valido(pedido.get("modo")), listas.get("lote"), listas.get("classe") or [])
+                return self.responder(texto.encode("utf-8-sig"), tipo="text/csv")  # BOM: o Excel lê os acentos
             if url.path.startswith("/foto/"):
                 lote, _, arquivo = unquote(url.path[6:]).partition("/")
                 foto = foto_do_lote(lote, arquivo)
@@ -109,5 +114,9 @@ class Atendimento(BaseHTTPRequestHandler):
         self.responder({"erro": "não encontrado"}, 404)
 
 
+class _Servidor(ThreadingHTTPServer):
+    allow_reuse_address = False  # no Windows, reutilizar deixaria dois servidores na mesma porta sem erro
+
+
 def rodar(porta: int) -> ThreadingHTTPServer:
-    return ThreadingHTTPServer(("127.0.0.1", porta), Atendimento)
+    return _Servidor(("127.0.0.1", porta), Atendimento)

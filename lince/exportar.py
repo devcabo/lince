@@ -13,6 +13,7 @@ Foto "ilegível" fica de fora; foto "sem objeto" entra com o .txt vazio (exemplo
 Uso: python -m lince.exportar <poligono|bounding_box> [lote ...]
 """
 import base64
+import csv
 import hashlib
 import io
 import math
@@ -144,6 +145,30 @@ def salvar(modo: str, lotes: list[str] | None = None, treino: Path = TREINO) -> 
     if not sum(contagem.values()):
         raise ValueError(f"Nenhuma foto rotulada no modo {modo} nos lotes escolhidos.")
     return treino / modo, contagem
+
+
+def planilha(modo: str, lotes: list[str] | None, escolhidas: list[str]) -> str:
+    """Planilha (CSV com ";", abre direto no Excel): uma linha por foto com ao menos um objeto das classes escolhidas,
+    com quantos objetos de cada uma. As marcas "sem_objeto" e "ilegivel" também podem ser escolhidas (contam 1)."""
+    if modo not in MODOS:
+        raise ValueError(f"Modo desconhecido: {modo}.")
+    nomes = {c["nome"]: c.get("rotulo") or c["nome"] for c in CLASSES[modo]} | {"sem_objeto": "Sem objeto", "ilegivel": "Ilegível"}
+    if not escolhidas or set(escolhidas) - nomes.keys():
+        raise ValueError("Escolha ao menos uma classe do modo em uso.")
+    linhas = [["lote", "foto", *(nomes[c] for c in escolhidas), "total", "rotulada_em"]]
+    for lote in todos_os_lotes() if lotes is None else lotes:
+        do_lote = ler_lote(modo, lote)
+        for foto in fotos_do_lote(lote):
+            rotulo = do_lote.get(foto.name) or {}
+            objetos = [c.get("classe") for c in rotulo.get("caixas") or []]
+            n = [objetos.count(c) + (rotulo.get("foto") == c) for c in escolhidas]
+            if any(n):
+                linhas.append([lote, foto.name, *n, sum(n), rotulo.get("quando", "")])
+    if len(linhas) == 1:
+        raise ValueError("Nenhuma foto com as classes escolhidas nos lotes escolhidos.")
+    saida = io.StringIO()
+    csv.writer(saida, delimiter=";", lineterminator="\n").writerows(linhas)
+    return saida.getvalue()
 
 
 if __name__ == "__main__":

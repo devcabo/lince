@@ -23,11 +23,12 @@
 </main>
 <dialog id="escolha">
   <form method="dialog">
-    <b>Exportar para treino</b>
-    <p>Lotes a exportar (cada um vira uma pasta no formato YOLO):</p>
+    <b id="escolha_titulo"></b>
+    <p id="escolha_texto"></p>
     <label class="todos"><input type="checkbox" id="escolha_todos" checked> Todos</label>
     <div id="escolha_lotes"></div>
-    <menu><button value="">Cancelar</button><button value="salvar" class="principal">Exportar</button></menu>
+    <div id="escolha_bloco_classes" hidden><p>Classes (entra a foto com ao menos uma delas):</p><div id="escolha_classes"></div></div>
+    <menu><button value="">Cancelar</button><button value="salvar" class="principal" id="escolha_ok"></button></menu>
   </form>
 </dialog>
 <script src="/web/js/estado.js"></script>

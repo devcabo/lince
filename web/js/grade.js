@@ -18,11 +18,19 @@ async function abrirLote(nome) {
   S.lote = nome;
   mostrarGrade();
 }
-// Exportar: primeiro a janela para escolher os lotes (só os que têm foto rotulada no modo em uso), depois a exportação.
-function escolherLotes(botao) {
+// Exportar ou baixar planilha: primeiro a janela para escolher os lotes (só os que têm foto rotulada no modo em uso)
+// e, na planilha, as classes; depois a ação.
+function escolherLotes(botao, paraPlanilha) {
   const comFotos = S.lotes.filter(l => l.feitas > 0);
   if (!comFotos.length) return alert('Nenhuma foto rotulada no modo ' + $('m_' + S.modo).textContent + ' ainda.');
   const janela = $('escolha'), todos = $('escolha_todos'), marcas = [];
+  $('escolha_titulo').textContent = paraPlanilha ? 'Baixar planilha' : 'Exportar para treino';
+  $('escolha_texto').textContent = paraPlanilha ? 'Lotes na planilha (uma linha por foto):' : 'Lotes a exportar (cada um vira uma pasta no formato YOLO):';
+  $('escolha_ok').textContent = paraPlanilha ? 'Baixar' : 'Exportar';
+  $('escolha_bloco_classes').hidden = !paraPlanilha;
+  const opcoes = [...classes().map(c => [c.nome, c.rotulo, true]), ...Object.entries(FOTO).map(([k, [nome]]) => [k, nome, false])];
+  const escolhas = opcoes.map(([nome, , marcada]) => el('input', {type: 'checkbox', value: nome, checked: marcada}));
+  $('escolha_classes').replaceChildren(...opcoes.map(([, rotulo], i) => { const l = el('label'); l.append(escolhas[i], ' ' + rotulo); return l; }));
   $('escolha_lotes').replaceChildren(...comFotos.map(l => {
     const linha = el('label'), marca = el('input', {type: 'checkbox', value: l.nome, checked: true});
     marca.onchange = () => todos.checked = marcas.every(m => m.checked);
@@ -33,9 +41,22 @@ function escolherLotes(botao) {
   janela.onclose = () => {
     if (janela.returnValue !== 'salvar') return;
     const lotes = marcas.filter(m => m.checked).map(m => m.value);
-    lotes.length ? exportar(botao, lotes) : alert('Nenhum lote escolhido; nada foi exportado.');
+    if (!lotes.length) return alert('Nenhum lote escolhido; nada foi ' + (paraPlanilha ? 'baixado.' : 'exportado.'));
+    paraPlanilha ? baixarPlanilha(botao, lotes, escolhas.filter(m => m.checked).map(m => m.value)) : exportar(botao, lotes);
   };
   janela.returnValue = ''; janela.showModal();
+}
+async function baixarPlanilha(botao, lotes, nomes) {
+  if (!nomes.length) return alert('Nenhuma classe escolhida; nada foi baixado.');
+  botao.disabled = true;
+  try {
+    const q = new URLSearchParams([['modo', S.modo], ...lotes.map(l => ['lote', l]), ...nomes.map(c => ['classe', c])]);
+    const r = await fetch('/api/planilha?' + q);
+    if (!r.ok) throw new Error((await r.json()).erro || 'Falha');
+    const agora = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString();  // hora local no nome
+    const a = el('a', {href: URL.createObjectURL(await r.blob()), download: 'lince-' + S.modo + '-' + agora.slice(0, 16).replace(/[-:]/g, '').replace('T', '-') + '.csv'});
+    a.click(); URL.revokeObjectURL(a.href);
+  } catch (e) { alert('Não baixou: ' + e.message); } finally { botao.disabled = false; }
 }
 async function exportar(botao, lotes) {
   botao.disabled = true;
@@ -58,7 +79,9 @@ function mostrarGrade() {
   escolha.onchange = () => { S.filtro = escolha.value; mostrarGrade(); };
   const botao = el('button', {className: 'principal', title: 'Grava (ou refaz) a pasta de treino de cada lote escolhido'}, 'Exportar para treino');
   botao.onclick = () => escolherLotes(botao);
-  $('filtros').replaceChildren(el('span', {}, 'Mostrar'), escolha, el('span', {className: 'esp'}), botao);
+  const planilha = el('button', {title: 'Planilha (Excel) das fotos com as classes escolhidas, com a contagem de cada uma'}, 'Baixar planilha');
+  planilha.onclick = () => escolherLotes(planilha, true);
+  $('filtros').replaceChildren(el('span', {}, 'Mostrar'), escolha, el('span', {className: 'esp'}), planilha, botao);
   const grade = $('miniaturas'); grade.replaceChildren();
   if (!S.lote) return grade.append(el('div', {className: 'vazio'}, 'Escolha um lote à esquerda.'));
   S.fotos.forEach((f, i) => {

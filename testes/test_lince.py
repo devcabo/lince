@@ -3,11 +3,12 @@ import base64
 import io
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 from PIL import Image
 
-from lince import armazenamento
+from lince import armazenamento, exportar
 from lince.exportar import linhas_yolo, parte_da_foto
 from lince.importar import importar
 
@@ -81,6 +82,19 @@ class Regras(unittest.TestCase):
             criados = importar(origem, 2, destino)
             self.assertEqual([p.name for p in criados], ["lote_008", "lote_009"])
             self.assertEqual(sum(len(list(p.iterdir())) for p in criados), 4)  # .txt fica de fora; nomes repetidos não se perdem
+
+    def test_planilha_so_com_as_classes_escolhidas(self):
+        rotulos = {"a.jpg": {"caixas": [{"classe": "x"}, {"classe": "x"}, {"classe": "y"}], "quando": "ontem"},
+                   "b.jpg": {"caixas": [{"classe": "y"}]}, "c.jpg": {"caixas": [], "foto": "sem_objeto"}}
+        classes = {"bounding_box": [{"nome": "x", "rotulo": "Xis"}, {"nome": "y"}]}
+        with mock.patch.dict(exportar.CLASSES, classes), mock.patch.object(exportar, "ler_lote", return_value=rotulos), \
+                mock.patch.object(exportar, "fotos_do_lote", return_value=[Path(n) for n in ["a.jpg", "b.jpg", "c.jpg", "d.jpg"]]):
+            self.assertEqual(exportar.planilha("bounding_box", ["l1"], ["x"]), "lote;foto;Xis;total;rotulada_em\nl1;a.jpg;2;2;ontem\n")
+            self.assertEqual(exportar.planilha("bounding_box", ["l1"], ["y", "sem_objeto"]).splitlines()[1:],
+                             ["l1;a.jpg;1;0;1;ontem", "l1;b.jpg;1;0;1;", "l1;c.jpg;0;1;1;"])
+            for escolhidas in ([], ["nao_existe"]):
+                with self.assertRaises(ValueError):
+                    exportar.planilha("bounding_box", ["l1"], escolhidas)
 
 
 if __name__ == "__main__":

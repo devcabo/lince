@@ -39,6 +39,9 @@ pip install -r requirements-sam.txt   # opcional: seleção por clique no modo P
    python -m lince.exportar bounding_box            # todos os lotes
    python -m lince.exportar poligono lote_001 lote_002
    ```
+5. **Planilha das análises:** **Baixar planilha** gera um CSV que abre direto no Excel. Você escolhe os lotes e as classes
+   (e, se quiser, as marcas "Sem objeto" e "Ilegível"). Sai uma linha por foto com ao menos uma das classes escolhidas,
+   com quantos objetos de cada uma, o total e quando a foto foi rotulada.
 
 ## Classes
 
@@ -58,6 +61,9 @@ O arquivo `classes.json` tem uma lista por modo, com 1 a 9 classes cada. As tecl
 | `cor` | cor da marcação na foto |
 
 > A ordem das classes define o número de cada uma no YOLO. Se você mudar a ordem depois de rotular, exporte de novo.
+
+Para usar classes próprias sem mexer no arquivo do repositório, crie `dados/classes.json`: se ele existir,
+vale no lugar do `classes.json` da raiz.
 
 ## Como rotular
 
